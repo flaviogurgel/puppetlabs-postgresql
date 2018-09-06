@@ -5,7 +5,7 @@ describe 'postgresql::server::grant', type: :define do
     {
       osfamily: 'Debian',
       operatingsystem: 'Debian',
-      operatingsystemrelease: '6.0',
+      operatingsystemrelease: '8.0',
       kernel: 'Linux',
       concat_basedir: tmpfilename('contrib'),
       id: 'root',
@@ -169,7 +169,7 @@ describe 'postgresql::server::grant', type: :define do
         db: 'test',
         role: 'test',
         privilege: 'all',
-        object_name: %w[myschema mytable],
+        object_name: ['myschema', 'mytable'],
         object_type: 'table',
       }
     end
@@ -193,7 +193,7 @@ describe 'postgresql::server::grant', type: :define do
         db: 'test',
         role: 'test',
         privilege: 'all',
-        object_name: %w[myschema mytable],
+        object_name: ['myschema', 'mytable'],
         object_type: 'table',
       }
     end
@@ -277,7 +277,7 @@ describe 'postgresql::server::grant', type: :define do
         db: 'test',
         role: 'test',
         privilege: 'all',
-        object_name: %w[myschema mytable oops],
+        object_name: ['myschema', 'mytable', 'oops'],
         object_type: 'table',
       }
     end

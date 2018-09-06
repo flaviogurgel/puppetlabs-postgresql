@@ -94,7 +94,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
         # postgres version
         result = shell('psql --version')
-        version = result.stdout.match(%r{\s(\d\.\d)})[1]
+        version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
         if version >= '8.4.0'
           apply_manifest(pp_lang, catch_failures: true)
@@ -104,7 +104,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
       it 'is expected to GRANT USAGE ON LANGUAGE plpgsql to ROLE' do
         result = shell('psql --version')
-        version = result.stdout.match(%r{\s(\d\.\d)})[1]
+        version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
         if version >= '8.4.0'
           ## Check that the privilege was granted to the user
@@ -121,7 +121,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
         # postgres version
         result = shell('psql --version')
-        version = result.stdout.match(%r{\s(\d\.\d)})[1]
+        version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
         if version >= '8.4.0'
           apply_manifest(pp_onlyif, catch_failures: true)
@@ -179,7 +179,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
       shell('psql --version')
     end
     let(:version) do
-      result.stdout.match(%r{\s(\d\.\d)})[1]
+      result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
     end
 
     before(:each) do
@@ -266,7 +266,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
       shell('psql --version')
     end
     let(:version) do
-      result.stdout.match(%r{\s(\d\.\d)})[1]
+      result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
     end
 
     before(:each) do
@@ -351,7 +351,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
           # postgres version
           result = shell('psql --version')
-          version = result.stdout.match(%r{\s(\d\.\d)})[1]
+          version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
           if version >= '9.0'
             apply_manifest(pp, catch_failures: true)
@@ -408,7 +408,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
           # postgres version
           result = shell('psql --version')
-          version = result.stdout.match(%r{\s(\d\.\d)})[1]
+          version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
           if version >= '9.0'
             apply_manifest(pp, catch_failures: true)
@@ -429,6 +429,32 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
                   WHERE grantee = '#{user}' AND table_schema = 'public'\"", user) do |r|
               expect(r.stdout).to match(%r{\(0 rows\)})
               expect(r.stderr).to eq('')
+            end
+          end
+        end
+      end
+
+      it 'grant insert on single table test' do
+        begin
+          # postgres version
+          result = shell('psql --version')
+          version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
+
+          if version >= '9.0'
+            pp = pp_create_table + <<-EOS.unindent
+            postgresql::server::table_grant { 'INSERT priviledge to table':
+              privilege => 'INSERT',
+              table     => 'test_tbl',
+              db        => $db,
+              role      => $user,
+              }
+            EOS
+            result = apply_manifest(pp, catch_failures: true)
+            expect(result.stdout).to match(%r{GRANT INSERT ON TABLE \"test_tbl\" TO \"psql_grant_priv_tester\"})
+
+            ## Check that the privilege was granted to the user
+            psql("-d #{db} --tuples-only --command=\"SELECT * FROM has_table_privilege('#{user}', 'test_tbl', 'INSERT')\"", user) do |r|
+              expect(r.stdout).to match(%r{t})
             end
           end
         end
@@ -467,7 +493,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
 
           # postgres version
           result = shell('psql --version')
-          version = result.stdout.match(%r{\s(\d\.\d)})[1]
+          version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
           if version >= '9.0'
             apply_manifest(pp, catch_failures: true)
@@ -503,7 +529,7 @@ describe 'postgresql::server::grant:', unless: UNSUPPORTED_PLATFORMS.include?(fa
           # Test fail's on postgresql versions earlier than 9.1.24
           # postgres version
           result = shell('psql --version')
-          version = result.stdout.match(%r{\s(\d\.\d)})[1]
+          version = result.stdout.match(%r{\s(\d{1,2}\.\d)})[1]
 
           if version >= '9.1.24'
             apply_manifest(pp_setup, catch_failures: true)

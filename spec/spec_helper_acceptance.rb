@@ -1,14 +1,17 @@
+require 'beaker-pe'
+require 'beaker-puppet'
 require 'puppet'
 require 'beaker-rspec/spec_helper'
 require 'beaker-rspec/helpers/serverspec'
 require 'beaker/puppet_install_helper'
 require 'beaker/module_install_helper'
-require 'beaker/task_helper'
+require 'beaker-task_helper'
 
 run_puppet_install_helper
+configure_type_defaults_on(hosts)
 install_ca_certs unless pe_install?
 
-UNSUPPORTED_PLATFORMS = %w[AIX windows Solaris Suse].freeze
+UNSUPPORTED_PLATFORMS = ['AIX', 'windows', 'Solaris', 'Suse'].freeze
 
 install_bolt_on(hosts) unless pe_install?
 install_module_on(hosts)
@@ -20,9 +23,9 @@ DEFAULT_PASSWORD = if default[:hypervisor] == 'vagrant'
                      'Qu@lity!'
                    end
 
+# Class String - unindent - Provide ability to remove indentation from strings, for the purpose of
+# left justifying heredoc blocks.
 class String
-  # Provide ability to remove indentation from strings, for the purpose of
-  # left justifying heredoc blocks.
   def unindent
     gsub(%r{^#{scan(%r{^\s*}).min_by { |l| l.length }}}, '')
   end
@@ -82,7 +85,9 @@ RSpec.configure do |c|
     end
 
     # net-tools required for netstat utility being used by be_listening
-    if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7'
+    if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7' ||
+       fact('osfamily') == 'Debian' && fact('operatingsystemmajrelease') == '9' ||
+       fact('osfamily') == 'Debian' && fact('operatingsystemmajrelease') == '18.04'
       pp = <<-EOS
         package { 'net-tools': ensure => installed }
       EOS

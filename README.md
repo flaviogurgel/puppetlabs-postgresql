@@ -299,7 +299,7 @@ primary_conninfo = 'host=localhost port=5432'
 recovery_min_apply_delay = 0
 ```
 
-Only the specified parameters are recognized in the template. The `recovery.conf` is only be created if at least one parameter is set **and** [manage_recovery_conf](#manage_recovery_conf) is set to true.
+Only the specified parameters are recognized in the template. The `recovery.conf` is only created if at least one parameter is set **and** [manage_recovery_conf](#manage_recovery_conf) is set to true.
 
 ### Validate connectivity
 
@@ -1501,6 +1501,8 @@ Every parameter value is a string set in the template except `recovery_target_in
 
 A detailed description of all listed parameters can be found in the [PostgreSQL documentation](http://www.postgresql.org/docs/current/static/recovery-config.html).
 
+Only the specified parameters are recognized in the template. The `recovery.conf` is only created if at least one parameter is set **and** [manage_recovery_conf](#manage_recovery_conf) is set to true.
+
 The parameters are grouped into these three sections:
 
 ##### [Archive Recovery Parameters](http://www.postgresql.org/docs/current/static/archive-recovery-settings.html)
@@ -1903,13 +1905,7 @@ The Postgresql module has an example task that allows a user to execute arbitary
 
 Works with versions of PostgreSQL from 8.1 through 9.5.
 
-Currently, the postgresql module is tested on the following operating systems:
-
-* Debian 6.x, 7.x, 8.x.
-* CentOS 5.x, 6.x, and 7.x.
-* Ubuntu 10.04 and 12.04, 14.04.
-
-Other systems might be compatible, but are not being actively tested.
+For an extensive list of supported operating systems, see [metadata.json](https://github.com/puppetlabs/puppetlabs-postgresql/blob/master/metadata.json)
 
 ### Apt module support
 
